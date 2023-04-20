@@ -5,30 +5,33 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand
 from aioredis import Redis
+from dotenv import load_dotenv
+
 from .commands import register_user_commands, commands_list
 
-API_TOKEN = '6137710823:AAFS_CaRsoacW6bFImQFh8_peQTCKix5RVw'
-
+# Загрузка переменных окружения.
+# Если файл config.env будет перенесён в другую директорию, может потребовтаься более сложная логика.
+load_dotenv('config.env')
 logging.basicConfig(level=logging.INFO)
 
 
 async def main() -> None:
     """
     Основная логика работы бота.
-    Регистрирует команды, создаёт бота и диспетчер, запускает бота
+    Регистрирует команды, создаёт бота и диспетчер, подюключает PostreSQL и Redis и запускает бота
     :return:
     """
     logging.basicConfig(level=logging.DEBUG)
     bot_commands = []
     for cmd in commands_list.COMMANDS:
         bot_commands.append(BotCommand(command=cmd[0], description=cmd[1]))
-    # при необходимости задаём порт и пароль для подключения базы данных при создании инстанса Redis
+    # создаём инстанс Redis.При необходимости задаём переменные в файле config.env
     redis = Redis(
         host=os.getenv('REDIS_HOST') or '127.0.0.1',
         password=os.getenv('REDIS_PASSWORD') or None,
         username=os.getenv('REDIS_USER') or None,
     )
-    bot = Bot(token=os.getenv('token'))
+    bot = Bot(token=os.getenv('TOKEN'))
     await bot.set_my_commands(commands=bot_commands)
     dispatcher = Dispatcher(storage=RedisStorage(redis=redis))
     register_user_commands(dispatcher)
