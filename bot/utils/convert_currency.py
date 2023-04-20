@@ -11,7 +11,10 @@ async def convert_currency(amount: float, first: str, second: str):
     :return: строка с результатом конвертации
     """
     url = f"https://open.er-api.com/v6/latest/{first}"
-    data = requests.get(url).json()
+    try:
+        data = requests.get(url).json()
+    except ConnectionError:
+        return "Извините, я не могу подключиться к сервису с данными по текузим курсам валют. Попробуйте позже"
     if data["result"] == "success":
         exchange_rates = data["rates"]
         if not second in exchange_rates:
