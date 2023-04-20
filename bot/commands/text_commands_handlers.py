@@ -3,6 +3,8 @@
 from aiogram.filters import CommandObject
 from aiogram.types import Message
 from bot.commands.keyboards import MENU_KEYBOARD
+from bot.utils.convert_currency import convert_currency
+from bot.utils.get_weather import get_weather
 
 
 async def commands_help(message: Message):
@@ -23,9 +25,10 @@ async def commands_help(message: Message):
 
 async def weather_command(message: Message, command: CommandObject):
     if command.args:
-        await message.answer(f"Извините, я ещё не умею этого делать. Вы передали в команду {command.args}")
+        weather_info = await get_weather(command.args)
+        await message.answer(text=str(weather_info))
     else:
-        await message.answer("Вы не ввели название города! Попробуйте ещё раз!")
+        await message.answer(text="Вы не ввели название города! Попробуйте ещё раз!")
 
 
 async def send_picture_command(message: Message):
@@ -42,8 +45,8 @@ async def convert_currency_command(message: Message, command: CommandObject):
         else:
             try:
                 float(data[0])
-                await message.answer(
-                    text=f'Извините, я ещё не умею этого делать. Вы хотели конвертировать {data[0]} {data[1]} в {data[2]}.')
+                convertation_result = await convert_currency(float(data[0]), data[1], data[2])
+                await message.answer(text=convertation_result)
             except ValueError:
                 await message.answer(text="Первым значением должно быть число! попробуйте ещё раз.")
 
