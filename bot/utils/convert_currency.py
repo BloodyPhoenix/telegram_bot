@@ -19,6 +19,7 @@ async def convert_currency(amount: float, first: str, second: str):
         exchange_rates = data["rates"]
         if not second in exchange_rates:
             return f'Извините, валюта {second} не найдена. Пожалуйста, уточните запрос.'
+        # TODO Возможно, стоит сделать рефакторинг даты и времени, чтобы она красивее выглядела.
         course_update = parse(data["time_last_update_utc"])
         result = exchange_rates[second] * amount
         return f'По курсу на {course_update} {amount} {first} ковертируются в {result} {second}'

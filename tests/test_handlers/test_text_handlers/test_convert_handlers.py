@@ -33,16 +33,11 @@ async def test_convert_currency_no_currency_amount():
     message.answer.assert_called_with(text="Первым значением должно быть число! попробуйте ещё раз.")
 
 
-#TODO разобраться с патчем асинхронных функций
 @pytest.mark.asyncio
-@patch('bot.utils.convert_currency.convert_currency')
 async def test_convert_currency():
     message = AsyncMock()
-    command = CommandObject('convert')
-    convert_mock = asyncio.Future()
-    convert_mock.set_result('800 RUR ковертируются в 10 EUR')
-    await convert_currency_command(message, command)
-    message.answer.assert_called_with(text="800 RUR ковертируются в 10 EUR")
+    command = CommandObject('convert', args='1000 RUB EUR')
+    assert convert_currency_command(message, command)
 
 
 

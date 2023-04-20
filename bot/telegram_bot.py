@@ -1,4 +1,6 @@
 import logging
+import os
+
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand
@@ -21,8 +23,12 @@ async def main() -> None:
     for cmd in commands_list.COMMANDS:
         bot_commands.append(BotCommand(command=cmd[0], description=cmd[1]))
     # при необходимости задаём порт и пароль для подключения базы данных при создании инстанса Redis
-    redis = Redis()
-    bot = Bot(API_TOKEN)
+    redis = Redis(
+        host=os.getenv('REDIS_HOST') or '127.0.0.1',
+        password=os.getenv('REDIS_PASSWORD') or None,
+        username=os.getenv('REDIS_USER') or None,
+    )
+    bot = Bot(token=os.getenv('token'))
     await bot.set_my_commands(commands=bot_commands)
     dispatcher = Dispatcher(storage=RedisStorage(redis=redis))
     register_user_commands(dispatcher)
