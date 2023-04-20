@@ -13,7 +13,7 @@ async def test_get_weather_false_town():
 @pytest.mark.asyncio
 async def test_get_weather():
     result = await get_weather("Москва")
-    assert result
+    assert (type(result) == float)
 
 
 
