@@ -1,2 +1,23 @@
+import requests
+from dateutil.parser import parse
+
+
 async def convert_currency(amount: float, first: str, second: str):
-    return f'Извините, я пока не умею этого делать. Вы хотели конвертировать {amount} {first} в {second}'
+    """
+    Функция для ковертации валют по текущему курсу. Использует Exchange Rates API
+    :param amount: количество валюты для обмена
+    :param first: валюта, которую будет конвертировать
+    :param second: валюта, в которую будем конвертировать
+    :return: строка с результатом конвертации
+    """
+    url = f"https://open.er-api.com/v6/latest/{first}"
+    data = requests.get(url).json()
+    if data["result"] == "success":
+        exchange_rates = data["rates"]
+        if not second in exchange_rates:
+            return f'Извините, валюта {second} не найдена. Пожалуйста, уточните запрос.'
+        course_update = parse(data["time_last_update_utc"])
+        result = exchange_rates[second] * amount
+        return f'По курсу на {course_update} {amount} {first} ковертируются в {result} {second}'
+    else:
+        return f'Извините, валюта {first} не найдена. Пожалуйста, уточните запрос.'
