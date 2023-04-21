@@ -2,11 +2,11 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from .keyboards import MENU_KEYBOARD
-from .states import TownInputStates
+from .states import TownInputStates, CurrencyConvertationStates
 from bot.utils import get_weather, convert_currency, get_picture
 
 
-async def show_menu(message: Message, state: FSMContext):
+async def show_menu(message: Message):
     return message.answer(text="Меню", reply_markup=MENU_KEYBOARD)
 
 
@@ -24,12 +24,11 @@ async def show_help(message: Message):
 async def town_name_input(message: Message, state: FSMContext):
     answer = "Введите название города"
     await state.set_state(TownInputStates.town_name_input)
-    state = await state.get_state()
-    await message.answer(text=answer + " " + str(state), reply_markup=MENU_KEYBOARD)
+    await message.answer(text=answer, reply_markup=MENU_KEYBOARD)
 
 
-async def town_weather(message: Message, state: FSMContext):
-    answer = await get_weather(message.text)
+async def town_weather(message: Message):
+    answer = await get_weather.get_weather(message.text)
     return message.answer(text=answer, reply_markup=MENU_KEYBOARD)
 
 
@@ -37,20 +36,34 @@ async def send_picture():
     answer = await get_picture()
 
 
-async def first_currency_input():
-    pass
+async def first_currency_input(message: Message, state: FSMContext):
+    answer = "Введите обозначение первой валюты"
+    await state.set_state(CurrencyConvertationStates.first_currency_input)
+    await message.answer(text=answer, reply_markup=MENU_KEYBOARD)
 
 
-async def currency_amount_input():
-    pass
+async def currency_amount_input(message: Message, state: FSMContext):
+    answer = "Введите количество валюты"
+    await state.update_data(first=message.text)
+    await state.set_state(CurrencyConvertationStates.currency_amount_input)
+    await message.answer(text=answer, reply_markup=MENU_KEYBOARD)
 
 
-async def second_currency_input():
-    pass
+async def second_currency_input(message: Message, state: FSMContext):
+    answer = "Введите обозначение второй валюты"
+    try:
+        amount = float(message.text)
+        await state.update_data(amount=amount)
+        await state.set_state(CurrencyConvertationStates.second_currency_input)
+        await message.answer(text=answer, reply_markup=MENU_KEYBOARD)
+    except ValueError:
+        await message.answer(text="Вы ввели не число. Пожалуйста, попробуйте ещё раз", reply_markup=MENU_KEYBOARD)
+
 
 
 async def return_convert_currency(message: Message, state: FSMContext):
     data = await state.get_data()
-    answer = await convert_currency(**data)
+    data['second'] = message.text
+    answer = await convert_currency.convert_currency(**data)
     await state.clear()
     await message.answer(text=answer)
