@@ -9,6 +9,8 @@ REDIS_USER = Пользователь Redis, если был задан
 
 POSTGRES_USER = Пользователь БД PostgreSQL
 POSTGRES_PASSWORD = Пароль от БД PostgreSQL
-POSTGRES_HOST = адрес хоста, на котором запущена БД PostgreSQL
+POSTGRES_HOST = адрес хоста, на котором запущена БД PostgreSQL, если она запущена не на той же машине, что и бот
 POSTGRES_DB = Конкретная база данных, подключение к которой нам необходимо
-POSTGRES_PORT = Порт для подключения к PostgreSQL, если она запущена не на той же машине, что и бот
+POSTGRES_PORT = Порт для подключения к PostgreSQL
+
+DEBUG = Переменная, показывающая, находимся ли ммы в режиме отладки

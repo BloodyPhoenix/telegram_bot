@@ -6,8 +6,10 @@ from aiogram.fsm.storage.redis import RedisStorage
 from aiogram.types import BotCommand
 from aioredis import Redis
 from dotenv import load_dotenv
+from sqlalchemy import URL
 
 from .commands import register_user_commands, commands_list
+from .PostgresDB import create_async_engine, get_session_maker, proceed_schemas, AnimalsPictures
 
 # Загрузка переменных окружения.
 # Если файл config.env будет перенесён в другую директорию, может потребовтаься более сложная логика.
@@ -31,6 +33,17 @@ async def main() -> None:
         password=os.getenv('REDIS_PASSWORD') or None,
         username=os.getenv('REDIS_USER') or None,
     )
+    postgres_url = URL.create(
+        "postgresql+asyncpg",
+        username=os.getenv("POSTGRES_USER"),
+        host=os.getenv('POSTGRES_HOST'),
+        database=os.getenv("POSTGRES_DB"),
+        port=int(os.getenv("POSTGRES_PORT") or 0),
+        password=os.getenv('POSTGRES_PASSWORD')
+    )
+    async_engine = create_async_engine(postgres_url)
+    session_maker = get_session_maker(async_engine)
+    await proceed_schemas(engine=async_engine, metadata=AnimalsPictures.metadata)
     bot = Bot(token=os.getenv('TOKEN'))
     await bot.set_my_commands(commands=bot_commands)
     dispatcher = Dispatcher(storage=RedisStorage(redis=redis))
