@@ -60,7 +60,6 @@ async def second_currency_input(message: Message, state: FSMContext):
         await message.answer(text="Вы ввели не число. Пожалуйста, попробуйте ещё раз", reply_markup=MENU_KEYBOARD)
 
 
-
 async def return_convert_currency(message: Message, state: FSMContext):
     data = await state.get_data()
     data['second'] = message.text

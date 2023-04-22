@@ -26,6 +26,5 @@ async def test_false_town_name():
 @pytest.mark.asyncio
 async def test_correct_town_name():
     message = AsyncMock(text="Москва")
-    state = AsyncMock()
     await town_weather(message)
     float(message.answer.text)
