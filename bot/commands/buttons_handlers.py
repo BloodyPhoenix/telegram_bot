@@ -1,6 +1,9 @@
 # Файл, в котором мы храним логику работы через кнопочное меню
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from aiogram.utils.markdown import hide_link
+from sqlalchemy.orm import sessionmaker
+
 from .keyboards import MENU_KEYBOARD
 from .states import TownInputStates, CurrencyConvertationStates
 from bot.utils import get_weather, convert_currency, get_picture
@@ -32,8 +35,12 @@ async def town_weather(message: Message):
     return message.answer(text=answer, reply_markup=MENU_KEYBOARD)
 
 
-async def send_picture():
-    answer = await get_picture()
+async def send_picture(message: Message):
+    answer = await get_picture.get_picture(session_maker=sessionmaker())
+    if answer:
+        await message.answer(text=f'{hide_link(answer)}', parse_mode='HTML', reply_markup=MENU_KEYBOARD)
+    else:
+        await message.answer(text="Извините, животные не найдены :(", reply_markup=MENU_KEYBOARD)
 
 
 async def first_currency_input(message: Message, state: FSMContext):

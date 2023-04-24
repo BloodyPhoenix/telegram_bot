@@ -9,12 +9,13 @@ from dotenv import load_dotenv
 from sqlalchemy import URL
 
 from .commands import register_user_commands, commands_list
-from .PostgresDB import create_async_engine, get_session_maker, proceed_schemas, AnimalsPictures
+from .PostgresDB import create_async_engine
 
 # Загрузка переменных окружения.
 # Если файл config.env будет перенесён в другую директорию, может потребовтаься более сложная логика.
 load_dotenv('config.env')
-logging.basicConfig(level=logging.INFO)
+
+BOT_HELPER = None
 
 
 async def main() -> None:
@@ -23,7 +24,7 @@ async def main() -> None:
     Регистрирует команды, создаёт бота и диспетчер, подюключает PostreSQL и Redis и запускает бота
     :return:
     """
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=os.getenv('LOGGING'))
     bot_commands = []
     for cmd in commands_list.COMMANDS:
         bot_commands.append(BotCommand(command=cmd[0], description=cmd[1]))
@@ -42,8 +43,6 @@ async def main() -> None:
         password=os.getenv('POSTGRES_PASSWORD')
     )
     async_engine = create_async_engine(postgres_url)
-    session_maker = get_session_maker(async_engine)
-    await proceed_schemas(engine=async_engine, metadata=AnimalsPictures.metadata)
     bot = Bot(token=os.getenv('TOKEN'))
     await bot.set_my_commands(commands=bot_commands)
     dispatcher = Dispatcher(storage=RedisStorage(redis=redis))

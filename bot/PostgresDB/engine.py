@@ -13,6 +13,8 @@ def create_async_engine(url: Union[URL, str]) -> AsyncEngine:
 
 async def proceed_schemas(engine: AsyncEngine, metadata) -> None:
     try:
+        # TODO соединение не распознаётс как контекстный менеджер,
+        #  хотя руководство по SQLAlchemy утверждает,что должно
         with engine.connect() as conn:
             await conn.run_sync(metadata.create_all)
     except AttributeError:
